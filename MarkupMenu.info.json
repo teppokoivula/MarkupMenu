@@ -1,0 +1,13 @@
+{
+    "title": "MarkupMenu",
+    "summary": "MarkupMenu is a module for generating menu markup.",
+    "version": "0.0.1",
+    "author": "Teppo Koivula",
+    "href": "https://github.com/teppokoivula/MarkupMenu",
+    "requires": [
+        "ProcessWire>=3.0.112",
+        "PHP>=7.1.0"
+    ],
+    "singular": false,
+    "autoload": false
+  }

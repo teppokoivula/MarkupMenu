@@ -1,0 +1,23 @@
+{
+    "name": "teppokoivula/MarkupMenu",
+    "type": "pw-module",
+    "description": "MarkupMenu is a ProcessWire CMS/CMF module for generating menu markup.",
+    "keywords": [
+        "module",
+        "processwire"
+    ],
+    "homepage": "https://github.com/teppokoivula/MarkupMenu",
+    "license": "MPL-2.0",
+    "authors": [
+        {
+            "name": "Teppo Koivula",
+            "homepage": "https://github.com/teppokoivula",
+            "email": "teppo.koivula@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=7.1",
+        "processwire/processwire": "^3.0",
+        "wireframe-framework/processwire-composer-installer": "^0.0.4"
+    }
+}
