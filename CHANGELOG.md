@@ -12,8 +12,3 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Rewrote parts of the MarkupMenu codebase to decrease repetition of code.
-
-## [0.0.10] - 2019-06-16
-
-### Added
-- Initial release of the module.
