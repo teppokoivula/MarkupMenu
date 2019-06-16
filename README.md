@@ -35,11 +35,15 @@ via site config setting `$config->MarkupMenu`.
     // 'current' page is the current or active menu page.
     'current_page' => null,
 
-    // 'templates' are used for rendering individual parts of the menu: the lists wrapping both the
-    // menu and the subtrees within it ('list'), the list items wrapping menu branches ('list_item'),
-    // the items (links) in the menu ('item') – and the currently active item ('item_current'), which
-    // is by default not rendered as a link.
+    // 'templates' are used for rendering individual parts of the menu:
+    //
+    // - the semantic <nav> element that acts as a wrapper for the menu ('nav'),
+    // - the lists wrapping the menu items and the subtrees within it ('list'),
+    // - the list items wrapping menu branches ('list_item'),
+    // - the items (links) in the menu ('item')
+    // - the active item ('item_current')
     'templates' => [
+        'nav' => '<nav>%s</nav>',
         'list' => '<ul class="level-{level} {classes}">%s</ul>',
         'list_item' => '<li class="level-{level} {classes}">%s</li>',
         'item' => '<a href="{item.url}">{item.title}</a>',

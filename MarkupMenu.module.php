@@ -23,6 +23,7 @@ class MarkupMenu extends WireData implements Module {
         'root_page' => null,
         'current_page' => null,
         'templates' => [
+            'nav' => '<nav>%s</nav>',
             'list' => '<ul class="level-{level} {classes}">%s</ul>',
             'list_item' => '<li class="level-{level} {classes}">%s</li>',
             'item' => '<a href="{item.url}">{item.title}</a>',
@@ -123,22 +124,22 @@ class MarkupMenu extends WireData implements Module {
             $out .= $this->renderTreeItem($options, $item, $root, $level);
         }
 
-        // generate list markup
-        if (!empty($out)) {
+        if (!empty($out) && (!empty($options['templates']['list']) || !empty($options['templates']['nav']))) {
+
+            // set up a placeholders object
             $placeholders = ( new MarkupMenuData() )
                 ->setArray([
                     'level' => $level,
                     'placeholders' => $options['placeholders'],
                     'root_page' => $options['root_page'],
                 ]);
-            $out = sprintf(
-                $this->textTools->populatePlaceholders(
-                    $options['templates']['list'],
-                    $placeholders,
-                    $options['text_tools_options']
-                ),
-                $out
-            );
+
+            // generate list markup
+            $out = $this->applyTemplate('list', $out, $placeholders, $options);
+
+            // generate nav markup
+            $out = $this->applyTemplate('nav', $out, $placeholders, $options);
+
         }
 
         return $out;
@@ -205,14 +206,7 @@ class MarkupMenu extends WireData implements Module {
         }
 
         // generate markup for current list item
-        $out .= sprintf(
-            $this->textTools->populatePlaceholders(
-                $this->getTemplate('list_item', $item, $options),
-                $placeholders,
-                $options['text_tools_options']
-            ),
-            $item_markup
-        );
+        $out .= $this->applyTemplate('list_item', $item_markup, $placeholders, $options, $item);
 
         return $out;
 
@@ -225,7 +219,7 @@ class MarkupMenu extends WireData implements Module {
      * @param mixed $default Optional default page in case source is empty
      * @return null|Page Page object or null
      */
-    protected function getPage($source = null, $default = null) {
+    protected function getPage($source = null, $default = null) : ?Page {
         
         $page = null;
 
@@ -246,12 +240,43 @@ class MarkupMenu extends WireData implements Module {
     /**
      * Get template for rendering an element (list item, item, or item_current)
      *
-     * @param string $template Template name
-     * @param Page $item Item being rendered
+     * @param string $template_name Template name
+     * @param Page|null $item Item being rendered
+     * @param array $options An array of options
      * @return string Template
      */
-    protected function ___getTemplate($template, Page $item, array $options) {
-        return $options['templates'][$template];
+    protected function ___getTemplate($template_name, Page $item = null, array $options = []) : string {
+        return $options['templates'][$template_name];
+    }
+
+    /**
+     * Apply a template to content string
+     *
+     * @param string $template_name Name of the template
+     * @param string $content Content to be wrapped in template
+     * @param MarkupMenuData $placeholders Source of placeholders for string replacements
+     * @param array $options An array of options
+     * @param Page|null $item Item being rendered
+     * @return string Content either wrapped in template, or as-is if no template was defined
+     */
+    protected function applyTemplate(string $template_name, string $content, MarkupMenuData $placeholders, array $options, Page $item = null) : string {
+
+        $out = '';
+
+        $template = $this->getTemplate($template_name, $item, $options);
+        if (!empty($template)) {
+            $out = sprintf(
+                $this->textTools->populatePlaceholders(
+                    $template,
+                    $placeholders,
+                    $options['text_tools_options']
+                ),
+                $content
+            );
+        }
+
+        return $out;
+
     }
 
 }
