@@ -104,7 +104,7 @@ MarkupSipleNavigation module instead: https://github.com/somatonic/MarkupSimpleN
 
 This module can be installed just like any other ProcessWire module, by downloading or cloning the
 MarkupMenu directory into your /site/modules/ directory. Alternatively you can install MarkupMenu
-through Composer by executing `composer require teppokoivula/MarkupMenu` in your site directory.
+through Composer by executing `composer require teppokoivula/markup-menu` in your site directory.
 
 ## License
 
