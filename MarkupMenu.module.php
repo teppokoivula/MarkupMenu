@@ -8,7 +8,7 @@ namespace ProcessWire;
  * MarkupMenu is a module for generating menu markup. See README.md for more details.
  * Some ideas and code in this module are based on the Markup Simple Navigation module.
  * 
- * @version 0.1.0
+ * @version 0.2.0
  * @author Teppo Koivula <teppo.koivula@gmail.com>
  * @license Mozilla Public License v2.0 http://mozilla.org/MPL/2.0/
  */
@@ -128,11 +128,10 @@ class MarkupMenu extends WireData implements Module {
 
             // set up a placeholders object
             $placeholders = ( new MarkupMenuData() )
-                ->setArray([
+                ->setArray(array_merge([
                     'level' => $level,
-                    'placeholders' => $options['placeholders'],
                     'root_page' => $options['root_page'],
-                ]);
+                ], $options['placeholders']));
 
             // generate list markup
             $out = $this->applyTemplate('list', $out, $placeholders, $options);
