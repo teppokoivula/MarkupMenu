@@ -7,7 +7,7 @@ namespace ProcessWire;
  *
  * This is a wrapper class for WireData, providing some additional features.
  * 
- * @version 0.1.0
+ * @version 0.2.0
  * @author Teppo Koivula <teppo.koivula@gmail.com>
  * @license Mozilla Public License v2.0 http://mozilla.org/MPL/2.0/
  */
