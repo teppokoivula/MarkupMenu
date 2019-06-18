@@ -13,6 +13,18 @@ namespace ProcessWire;
  */
 class MarkupMenuData extends WireData {
 
+    /**
+     * Constructor method
+     *
+     * @param array Stored values
+     */
+    public function __construct(array $values = []) {
+        if (isset($values['classes']) && is_array($values['classes'])) {
+            $values['classes'] = implode(' ', $values['classes']);
+        }
+        $this->setArray($values);
+    }
+
 	/**
 	 * Retrieve the value for a previously set property
 	 *

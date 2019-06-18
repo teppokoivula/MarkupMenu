@@ -49,9 +49,9 @@ class MarkupMenu extends WireData implements Module {
             'list_item' => 'menu__list-item',
             'item' => 'menu__item',
             'item_current' => 'menu__item menu__item--current',
-            'current' => 'current',
-            'parent' => 'parent',
-            'has_children' => 'has-children',
+            'current' => '&--current',
+            'parent' => '&--parent',
+            'has_children' => '&--has-children',
         ],
     ];
 
@@ -189,24 +189,22 @@ class MarkupMenu extends WireData implements Module {
 
         // placeholders for string replacements
         $placeholders = array_merge(
-            $options['placeholders'],
             [
                 'level' => $level,
                 'item' => $item,
                 'classes' => $classes,
-            ]
+            ],
+            $options['placeholders']
         );
 
         // generate markup for menu item
-        $item_template = $this->getTemplate('item' . ($item_is_current ? '_current' : ''), $item, $options);
+        $item_template_name = 'item' . ($item_is_current ? '_current' : '');
+        $item_template = $this->getTemplate($item_template_name, $item, $options);
+        $item_placeholders = $placeholders;
+        $item_placeholders['classes'] = $this->parseClassesString($item_placeholders, $options, $item_template_name);
         $item_markup = $this->textTools->populatePlaceholders(
             $item_template,
-            ( new MarkupMenuData() )
-                ->setArray(array_merge(
-                    $placeholders,
-                    $options['placeholders']
-                )
-            ),
+            new MarkupMenuData($item_placeholders),
             $options['text_tools_options']
         );
 
@@ -275,24 +273,54 @@ class MarkupMenu extends WireData implements Module {
 
         $template = $this->getTemplate($template_name, $item, $options);
         if (!empty($template)) {
-            $placeholders['classes'] = $placeholders['classes'] ?? [];
-            if (!isset($placeholders['classes'][$template_name])) {
-                $placeholders['classes'][$template_name] = $options['classes'][$template_name] ?? null;
-            }
-            $placeholders['classes'] = empty($placeholders['classes']) ? '' : implode(' ', array_filter($placeholders['classes']));
+            $placeholders['classes'] = $this->parseClassesString($placeholders, $options, $template_name);
             $out = sprintf(
                 $this->textTools->populatePlaceholders(
                     $template,
-                    ( new MarkupMenuData() )
-                        ->setArray(array_merge(
-                            $placeholders,
-                            $options['placeholders']
-                        )
-                    ),
+                    new MarkupMenuData(array_merge(
+                        $placeholders,
+                        $options['placeholders']
+                    )),
                     $options['text_tools_options']
                 ),
                 $content
             );
+        }
+
+        return $out;
+
+    }
+
+    /**
+     * Parse classes array to a string, adding template class and processing self-references
+     *
+     * @param array $placeholders
+     * @param array $options
+     * @param string $template_name
+     * @return string Parsed classes string
+     */
+    protected function parseClassesString(array $placeholders, array $options, string $template_name) : string {
+
+        $out = '';
+
+        // get classes array
+        $classes = [];
+        if (!empty($placeholders['classes']) && is_array($placeholders['classes'])) {
+            $classes = $placeholders['classes'];
+        }
+
+        // add template name class (if available)
+        $template_name_class = $classes[$template_name] ?? $options['classes'][$template_name] ?? null;
+        if (!empty($template_name_class)) {
+            array_walk($classes, function(&$class) use ($template_name_class) {
+                $class = str_replace('&', $template_name_class, $class);
+            });
+            $classes[$template_name] = $template_name_class;
+        }
+
+        // convert classes array to string
+        if (!empty($classes)) {
+            $out = implode(' ', array_filter($classes));
         }
 
         return $out;

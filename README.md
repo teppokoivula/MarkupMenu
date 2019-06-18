@@ -94,9 +94,9 @@ via site config setting `$config->MarkupMenu`.
         'list_item' => 'menu__list-item',
         'item' => 'menu__item',
         'item_current' => 'menu__item menu__item--current',
-        'current' => 'current',
-        'parent' => 'parent',
-        'has_children' => 'has-children',
+        'current' => '&--current',
+        'parent' => '&--parent',
+        'has_children' => '&--has-children',
     ],
 ];
 ```
