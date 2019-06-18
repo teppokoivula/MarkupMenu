@@ -23,11 +23,11 @@ class MarkupMenu extends WireData implements Module {
         'root_page' => null,
         'current_page' => null,
         'templates' => [
-            'nav' => '<nav>%s</nav>',
+            'nav' => '<nav class="{classes}">%s</nav>',
             'list' => '<ul class="level-{level} {classes}">%s</ul>',
             'list_item' => '<li class="level-{level} {classes}">%s</li>',
-            'item' => '<a href="{item.url}">{item.title}</a>',
-            'item_current' => '<span>{item.title}</span>',
+            'item' => '<a href="{item.url}" class="{classes}">{item.title}</a>',
+            'item_current' => '<span class="{classes}">{item.title}</span>',
         ],
         'include' => [
             'selector' => null,
@@ -44,6 +44,11 @@ class MarkupMenu extends WireData implements Module {
         'placeholders' => [],
         'classes' => [
             // 'page_id' => 'id-',
+            'nav' => 'menu',
+            'list' => 'menu__list',
+            'list_item' => 'menu__list-item',
+            'item' => 'menu__item',
+            'item_current' => 'menu__item menu__item--current',
             'current' => 'current',
             'parent' => 'parent',
             'has_children' => 'has-children',
@@ -126,12 +131,11 @@ class MarkupMenu extends WireData implements Module {
 
         if (!empty($out) && (!empty($options['templates']['list']) || !empty($options['templates']['nav']))) {
 
-            // set up a placeholders object
-            $placeholders = ( new MarkupMenuData() )
-                ->setArray(array_merge([
-                    'level' => $level,
-                    'root_page' => $options['root_page'],
-                ], $options['placeholders']));
+            // set up a placeholders
+            $placeholders = [
+                'level' => $level,
+                'root_page' => $options['root_page'],
+            ];
 
             // generate list markup
             $out = $this->applyTemplate('list', $out, $placeholders, $options);
@@ -164,18 +168,18 @@ class MarkupMenu extends WireData implements Module {
         }
 
         // default classes
-        $item_classes = [];
+        $classes = [];
         if ($options['classes']['page_id']) {
-            $item_classes['page_id'] = $options['classes']['page_id'] . $item->id;
+            $classes['page_id'] = $options['classes']['page_id'] . $item->id;
         }
 
         // is this current page?
         $item_is_current = $options['current_page'] && $options['current_page']->id === $item->id;
-        if ($item_is_current) $item_classes['current'] = $options['classes']['current'];
+        if ($item_is_current) $classes['current'] = $options['classes']['current'];
 
         // is this a parent page?
         $item_is_parent = !$item_is_current && ($item->id !== $root->id || !$options['flat_root']) && $options['current_page'] && $options['current_page']->parents->has($item);
-        if ($item_is_parent) $item_classes['parent'] = $options['classes']['parent'];
+        if ($item_is_parent) $classes['parent'] = $options['classes']['parent'];
 
         // have we reached the level limit?
         $level_limit_reached = $options['exclude']['level_greater_than'] && $level >= $options['exclude']['level_greater_than'];
@@ -184,18 +188,25 @@ class MarkupMenu extends WireData implements Module {
         $with_children = ($item->id !== $root->id || !$options['flat_root']) && !$level_limit_reached && (!$options['collapsed'] || $item_is_current || $item_is_parent);
 
         // placeholders for string replacements
-        $placeholders = ( new MarkupMenuData() )
-            ->setArray(array_merge($options['placeholders'], [
+        $placeholders = array_merge(
+            $options['placeholders'],
+            [
                 'level' => $level,
                 'item' => $item,
-                'classes' => implode(' ', $item_classes),
-            ]));
+                'classes' => $classes,
+            ]
+        );
 
         // generate markup for menu item
         $item_template = $this->getTemplate('item' . ($item_is_current ? '_current' : ''), $item, $options);
         $item_markup = $this->textTools->populatePlaceholders(
             $item_template,
-            $placeholders,
+            ( new MarkupMenuData() )
+                ->setArray(array_merge(
+                    $placeholders,
+                    $options['placeholders']
+                )
+            ),
             $options['text_tools_options']
         );
 
@@ -253,21 +264,31 @@ class MarkupMenu extends WireData implements Module {
      *
      * @param string $template_name Name of the template
      * @param string $content Content to be wrapped in template
-     * @param MarkupMenuData $placeholders Source of placeholders for string replacements
+     * @param array $placeholders Array of placeholders for string replacements
      * @param array $options An array of options
      * @param Page|null $item Item being rendered
      * @return string Content either wrapped in template, or as-is if no template was defined
      */
-    protected function applyTemplate(string $template_name, string $content, MarkupMenuData $placeholders, array $options, Page $item = null) : string {
+    protected function applyTemplate(string $template_name, string $content, array $placeholders, array $options, Page $item = null) : string {
 
         $out = '';
 
         $template = $this->getTemplate($template_name, $item, $options);
         if (!empty($template)) {
+            $placeholders['classes'] = $placeholders['classes'] ?? [];
+            if (!isset($placeholders['classes'][$template_name])) {
+                $placeholders['classes'][$template_name] = $options['classes'][$template_name] ?? null;
+            }
+            $placeholders['classes'] = empty($placeholders['classes']) ? '' : implode(' ', array_filter($placeholders['classes']));
             $out = sprintf(
                 $this->textTools->populatePlaceholders(
                     $template,
-                    $placeholders,
+                    ( new MarkupMenuData() )
+                        ->setArray(array_merge(
+                            $placeholders,
+                            $options['placeholders']
+                        )
+                    ),
                     $options['text_tools_options']
                 ),
                 $content

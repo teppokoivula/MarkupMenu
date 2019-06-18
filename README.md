@@ -43,11 +43,11 @@ via site config setting `$config->MarkupMenu`.
     // - the items (links) in the menu ('item')
     // - the active item ('item_current')
     'templates' => [
-        'nav' => '<nav>%s</nav>',
+        'nav' => '<nav class="{classes}">%s</nav>',
         'list' => '<ul class="level-{level} {classes}">%s</ul>',
         'list_item' => '<li class="level-{level} {classes}">%s</li>',
-        'item' => '<a href="{item.url}">{item.title}</a>',
-        'item_current' => '<span>{item.title}</span>',
+        'item' => '<a href="{item.url}" class="{classes}">{item.title}</a>',
+        'item_current' => '<span class="{classes}">{item.title}</span>',
     ],
 
     // 'include' defines the pages included in the menu: you can provide 'selector' string to choose
@@ -89,6 +89,11 @@ via site config setting `$config->MarkupMenu`.
     // is used in a template defined via the 'templates' option.
     'classes' => [
         // 'page_id' => 'page-id-', // note: page_id is disabled by default!
+        'nav' => 'menu',
+        'list' => 'menu__list',
+        'list_item' => 'menu__list-item',
+        'item' => 'menu__item',
+        'item_current' => 'menu__item menu__item--current',
         'current' => 'current',
         'parent' => 'parent',
         'has_children' => 'has-children',
