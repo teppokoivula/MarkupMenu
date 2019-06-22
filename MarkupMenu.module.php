@@ -8,7 +8,7 @@ namespace ProcessWire;
  * MarkupMenu is a module for generating menu markup. See README.md for more details.
  * Some ideas and code in this module are based on the Markup Simple Navigation module.
  * 
- * @version 0.4.1
+ * @version 0.5.0
  * @author Teppo Koivula <teppo.koivula@gmail.com>
  * @license Mozilla Public License v2.0 http://mozilla.org/MPL/2.0/
  */
@@ -40,7 +40,7 @@ class MarkupMenu extends WireData implements Module {
         ],
         'collapsed' => true,
         'flat_root' => true,
-        'text_tools_options' => [],
+        'placeholder_options' => [],
         'placeholders' => [],
         'classes' => [
             // 'page_id' => 'id-',
@@ -54,13 +54,6 @@ class MarkupMenu extends WireData implements Module {
             'has_children' => '&--has-children',
         ],
     ];
-
-    /**
-     * Text tools instance
-     *
-     * @var null|WireTextTools
-     */
-    protected $textTools = null;
 
     /**
      * Render menu markup
@@ -82,9 +75,6 @@ class MarkupMenu extends WireData implements Module {
 
         // get current page
         $options['current_page'] = $this->getPage($options['current_page']);
-
-        // get an instance of text tools
-        $this->textTools = $this->wire('sanitizer')->getTextTools();
 
         // load MarkupMenuData
         require_once __DIR__ . '/MarkupMenuData.php';
@@ -202,10 +192,10 @@ class MarkupMenu extends WireData implements Module {
         $item_template = $this->getTemplate($item_template_name, $item, $options);
         $item_placeholders = $placeholders;
         $item_placeholders['classes'] = $this->parseClassesString($item_placeholders, $options, $item_template_name);
-        $item_markup = $this->textTools->populatePlaceholders(
+        $item_markup = wirePopulateStringTags(
             $item_template,
             new MarkupMenuData($item_placeholders),
-            $options['text_tools_options']
+            $options['placeholder_options']
         );
 
         // generate markup for menu item children
@@ -275,13 +265,13 @@ class MarkupMenu extends WireData implements Module {
         if (!empty($template)) {
             $placeholders['classes'] = $this->parseClassesString($placeholders, $options, $template_name);
             $out = sprintf(
-                $this->textTools->populatePlaceholders(
+                wirePopulateStringTags(
                     $template,
                     new MarkupMenuData(array_merge(
                         $placeholders,
                         $options['placeholders']
                     )),
-                    $options['text_tools_options']
+                    $options['placeholder_options']
                 ),
                 $content
             );

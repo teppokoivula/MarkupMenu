@@ -77,9 +77,10 @@ via site config setting `$config->MarkupMenu`.
     // this, so that your home page shows up at the same level as the first level below it.
     'flat_root' => true,
 
-    // 'text_tools_options' is an optional array of options that will be passed to WireTextTools,
-    // used for tag replacements in templates defined via the 'templates' option.
-    'text_tools_options' => [],
+    // 'placeholder_options' is an optional array of options that will be passed to WireTextTools or
+    // the wirePopulateStringTags() function, used for tag replacements in templates defined via the
+    // 'templates' option.
+    'placeholder_options' => [],
 
     // 'placeholders' can be used to provide additional custom values for string replacements used
     // within the templates defined via the 'templates' option.
