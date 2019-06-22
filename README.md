@@ -18,7 +18,7 @@ echo $modules->get('MarkupMenu')->render([
 ]);
 ```
 
-Note: if you omit the root_page, site root page is used by default. If you omit current_page, the menu
+Note: if you omit root_page, site root page is used by default. If you omit current_page, the menu
 will be rendered, but current (active) page won't be highlighted.
 
 ## Options
@@ -106,8 +106,8 @@ via site config setting `$config->MarkupMenu`.
 - ProcessWire >= 3.0.112
 - PHP >= 7.1.0
 
-If you're working on an earlier version of ProcessWire or PHP, I'd highly recomend checking out the
-MarkupSipleNavigation module instead: https://github.com/somatonic/MarkupSimpleNavigation.
+If you're working on an earlier version of ProcessWire or PHP, I'd highly recommend checking out the
+MarkupSimpleNavigation module instead: https://github.com/somatonic/MarkupSimpleNavigation.
 
 ## Installing
 
