@@ -24,8 +24,8 @@ class MarkupMenu extends WireData implements Module {
         'current_page' => null,
         'templates' => [
             'nav' => '<nav class="{classes}">%s</nav>',
-            'list' => '<ul class="level-{level} {classes}">%s</ul>',
-            'list_item' => '<li class="level-{level} {classes}">%s</li>',
+            'list' => '<ul class="{classes} {class}--level-{level}">%s</ul>',
+            'list_item' => '<li class="{classes} {class}--level-{level}">%s</li>',
             'item' => '<a href="{item.url}" class="{classes}">{item.title}</a>',
             'item_current' => '<span class="{classes}">{item.title}</span>',
         ],
@@ -43,12 +43,12 @@ class MarkupMenu extends WireData implements Module {
         'placeholder_options' => [],
         'placeholders' => [],
         'classes' => [
-            // 'page_id' => 'id-',
+            // 'page_id' => '&--page-id-',
             'nav' => 'menu',
             'list' => 'menu__list',
             'list_item' => 'menu__list-item',
             'item' => 'menu__item',
-            'item_current' => 'menu__item menu__item--current',
+            'item_current' => 'menu__item',
             'current' => '&--current',
             'parent' => '&--parent',
             'has_children' => '&--has-children',
@@ -131,7 +131,9 @@ class MarkupMenu extends WireData implements Module {
             $out = $this->applyTemplate('list', $out, $placeholders, $options);
 
             // generate nav markup
-            $out = $this->applyTemplate('nav', $out, $placeholders, $options);
+            if ($level === 1) {
+                $out = $this->applyTemplate('nav', $out, $placeholders, $options);
+            }
 
         }
 
@@ -159,7 +161,7 @@ class MarkupMenu extends WireData implements Module {
 
         // default classes
         $classes = [];
-        if ($options['classes']['page_id']) {
+        if (!empty($options['classes']['page_id'])) {
             $classes['page_id'] = $options['classes']['page_id'] . $item->id;
         }
 
@@ -263,6 +265,7 @@ class MarkupMenu extends WireData implements Module {
 
         $template = $this->getTemplate($template_name, $item, $options);
         if (!empty($template)) {
+            $placeholders['class'] = $placeholders['classes'][$template_name] ?? $options['classes'][$template_name] ?? null;
             $placeholders['classes'] = $this->parseClassesString($placeholders, $options, $template_name);
             $out = sprintf(
                 wirePopulateStringTags(

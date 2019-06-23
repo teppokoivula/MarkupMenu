@@ -2,8 +2,9 @@ MarkupMenu ProcessWire module
 -----------------------------
 
 MarkupMenu is a markup module for generating menu trees. When provided a root page as a starting point,
-it generates a navigation tree (by default as a HTML `<ul>` element) from that point onwards. If you've
-also provided it with current (active) page, the menu will be rendered according to that information.
+it generates a navigation tree (by default as a HTML `<ul>` element wrapped by a `<nav>` element) from
+that point onwards. If you've also provided it with current (active) page, the menu will be rendered
+accordingly.
 
 ## Usage
 
@@ -42,10 +43,17 @@ via site config setting `$config->MarkupMenu`.
     // - the list items wrapping menu branches ('list_item'),
     // - the items (links) in the menu ('item')
     // - the active item ('item_current')
+    //
+    // special placeholder values populated by default:
+    //
+    // - {classes}: all default classes applied, including template class, current class, etc.
+    // - {class}: the template class only, mostly useful for adding a prefix to other classes
+    // - {item}: the item itself, i.e. a Page object and all its field values andproperties
+    // - {level}: the level of current item, represented by an integer starting from 1
     'templates' => [
         'nav' => '<nav class="{classes}">%s</nav>',
-        'list' => '<ul class="level-{level} {classes}">%s</ul>',
-        'list_item' => '<li class="level-{level} {classes}">%s</li>',
+        'list' => '<ul class="{classes} {class}--level-{level}">%s</ul>',
+        'list_item' => '<li class="{classes} {class}--level-{level}">%s</li>',
         'item' => '<a href="{item.url}" class="{classes}">{item.title}</a>',
         'item_current' => '<span class="{classes}">{item.title}</span>',
     ],
@@ -89,12 +97,12 @@ via site config setting `$config->MarkupMenu`.
     // 'classes' can be used to override default class names added to items when the {classes} tag
     // is used in a template defined via the 'templates' option.
     'classes' => [
-        // 'page_id' => 'page-id-', // note: page_id is disabled by default!
+        // 'page_id' => '&--page-id-', // note: page_id is disabled by default!
         'nav' => 'menu',
         'list' => 'menu__list',
         'list_item' => 'menu__list-item',
         'item' => 'menu__item',
-        'item_current' => 'menu__item menu__item--current',
+        'item_current' => 'menu__item',
         'current' => '&--current',
         'parent' => '&--parent',
         'has_children' => '&--has-children',
