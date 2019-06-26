@@ -8,7 +8,7 @@ namespace ProcessWire;
  * MarkupMenu is a module for generating menu markup. See README.md for more details.
  * Some ideas and code in this module are based on the Markup Simple Navigation module.
  *
- * @version 0.6.0
+ * @version 0.6.1
  * @author Teppo Koivula <teppo.koivula@gmail.com>
  * @license Mozilla Public License v2.0 http://mozilla.org/MPL/2.0/
  */
@@ -176,8 +176,12 @@ class MarkupMenu extends WireData implements Module {
         // have we reached the level limit?
         $level_limit_reached = $options['exclude']['level_greater_than'] && $level >= $options['exclude']['level_greater_than'];
 
-        // should we render children for this item?
-        $with_children = ($item->id !== $root->id || !$options['flat_root']) && !$level_limit_reached && (!$options['collapsed'] || $item_is_current || $item_is_parent);
+        // does this page have children?
+        $has_children = ($item->id !== $root->id || !$options['flat_root']) && !$level_limit_reached && $item->hasChildren;
+        if ($has_children) $classes['has_children'] = $options['classes']['has_children'];
+
+        // should we render the children for this item?
+        $with_children = $has_children && (!$options['collapsed'] || $item_is_current || $item_is_parent);
 
         // placeholders for string replacements
         $placeholders = array_merge(
