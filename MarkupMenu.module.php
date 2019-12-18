@@ -8,7 +8,7 @@ namespace ProcessWire;
  * MarkupMenu is a module for generating menu markup. See README.md for more details.
  * Some ideas and code in this module are based on the Markup Simple Navigation module.
  *
- * @version 0.6.2
+ * @version 0.7.0
  * @author Teppo Koivula <teppo.koivula@gmail.com>
  * @license Mozilla Public License v2.0 http://mozilla.org/MPL/2.0/
  */
@@ -61,7 +61,7 @@ class MarkupMenu extends WireData implements Module {
      * @param array $options Custom options
      * @return string Rendered menu markup
      */
-    public function render(array $options = []) : string {
+    public function render(array $options = []): string {
 
         // merge options with default options and config options
         $options = array_replace_recursive(
@@ -93,26 +93,12 @@ class MarkupMenu extends WireData implements Module {
      * @param int $level Current tree level (depth)
      * @return string Rendered menu markup
      */
-    protected function renderTree(array $options = [], Page $root, int $level = 1) : string {
+    protected function renderTree(array $options = [], Page $root, int $level = 1): string {
 
         $out = '';
 
-        // fetch items (children of the root page), optionally filtered by a selector string
-        $items = new PageArray();
-        if (!$options['include']['root_page'] || $options['flat_root']) {
-            $items->add($root->children($options['include']['selector']));
-        }
-
-        // optionally prepend the root page itself – but only once!
-        if ($options['include']['root_page']) {
-            $options['include']['root_page'] = false;
-            $items->prepend($root);
-        }
-
-        // exclude rules based on selector string
-        if (!empty($options['exclude']['selector'])) {
-            $items->not($options['exclude']['selector']);
-        }
+        // get items
+        $items = $this->getItems($options, $root, $level);
 
         // iterate items and render markup for each separately
         foreach ($items as $item) {
@@ -142,6 +128,36 @@ class MarkupMenu extends WireData implements Module {
     }
 
     /**
+     * Get menu items for rendering
+     *
+     * @param array $options Options array.
+     * @param Page $root Root page for the menu
+     * @param int $level Current tree level (depth)
+     * @return PageArray Menu items
+     */
+    protected function ___getItems(array $options, Page $root, int $level): PageArray {
+
+        // fetch items (children of the root page), optionally filtered by a selector string
+        $items = new PageArray();
+        if (!$options['include']['root_page'] || $options['flat_root']) {
+            $items->add($root->children($options['include']['selector']));
+        }
+
+        // optionally prepend the root page itself – but only once!
+        if ($options['include']['root_page']) {
+            $options['include']['root_page'] = false;
+            $items->prepend($root);
+        }
+
+        // exclude rules based on selector string
+        if (!empty($options['exclude']['selector'])) {
+            $items->not($options['exclude']['selector']);
+        }
+
+        return $items;
+    }
+
+    /**
      * Render markup for a single menu item
      *
      * @param array $options Options for rendering
@@ -150,7 +166,7 @@ class MarkupMenu extends WireData implements Module {
      * @param int $level Current tree level (depth)
      * @return string Rendered menu item markup
      */
-    protected function renderTreeItem(array $options = [], Page $item, Page $root, int $level = 1) : string {
+    protected function ___renderTreeItem(array $options = [], Page $item, Page $root, int $level = 1): string {
 
         $out = '';
 
@@ -223,7 +239,7 @@ class MarkupMenu extends WireData implements Module {
      * @param mixed $default Optional default page in case source is empty
      * @return null|Page Page object or null
      */
-    protected function getPage($source = null, $default = null) : ?Page {
+    protected function getPage($source = null, $default = null): ?Page {
         
         $page = null;
 
@@ -249,7 +265,7 @@ class MarkupMenu extends WireData implements Module {
      * @param array $options An array of options
      * @return string Template
      */
-    protected function ___getTemplate($template_name, Page $item = null, array $options = []) : string {
+    protected function ___getTemplate($template_name, Page $item = null, array $options = []): string {
         return $options['templates'][$template_name];
     }
 
@@ -263,7 +279,7 @@ class MarkupMenu extends WireData implements Module {
      * @param Page|null $item Item being rendered
      * @return string Content either wrapped in template, or as-is if no template was defined
      */
-    protected function applyTemplate(string $template_name, string $content, array $placeholders, array $options, Page $item = null) : string {
+    protected function applyTemplate(string $template_name, string $content, array $placeholders, array $options, Page $item = null): string {
 
         $out = '';
 
@@ -296,7 +312,7 @@ class MarkupMenu extends WireData implements Module {
      * @param string $template_name
      * @return string Parsed classes string
      */
-    protected function parseClassesString(array $placeholders, array $options, string $template_name) : string {
+    protected function parseClassesString(array $placeholders, array $options, string $template_name): string {
 
         $out = '';
 
