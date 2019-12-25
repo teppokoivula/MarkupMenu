@@ -19,8 +19,9 @@ echo $modules->get('MarkupMenu')->render([
 ]);
 ```
 
-Note: if you omit root_page, site root page is used by default. If you omit current_page, the menu
-will be rendered, but current (active) page won't be highlighted.
+Note: if you omit root_page, site root page is used by default – unless you've specified the menu_items
+option instead, in which case a root page is not necessary. If you omit current_page, the menu will be
+rendered, but current (active) page can't be highlighted.
 
 ## Options
 
@@ -30,8 +31,12 @@ via site config setting `$config->MarkupMenu`.
 
 ```
 [
-    // 'root_page' is the starting point for the menu.
+    // 'root_page' is the starting point for the menu. This is optional if you specify the 'menu_items'
+    // option instead, but leaving *both* empty will make MarkupMenu::render() return an empty string.
     'root_page' => null,
+
+    // 'menu_items' is an optional, prepopulated PageArray of first level menu items.
+    'menu_items' => null,
 
     // 'current' page is the current or active menu page.
     'current_page' => null,
