@@ -8,7 +8,7 @@ namespace ProcessWire;
  * MarkupMenu is a module for generating menu markup. See README.md for more details.
  * Some ideas and code in this module are based on the Markup Simple Navigation module.
  *
- * @version 0.8.0
+ * @version 0.8.1
  * @author Teppo Koivula <teppo.koivula@gmail.com>
  * @license Mozilla Public License v2.0 http://mozilla.org/MPL/2.0/
  */
@@ -169,7 +169,6 @@ class MarkupMenu extends WireData implements Module {
      * @param array $options Options for rendering
      * @param Page $item Menu item being rendered
      * @param Page|null $root Root page for the menu
-     * @param bool $with_children Include markup for child pages?
      * @param int $level Current tree level (depth)
      * @return string Rendered menu item markup
      */
@@ -200,7 +199,8 @@ class MarkupMenu extends WireData implements Module {
         $level_limit_reached = $options['exclude']['level_greater_than'] && $level >= $options['exclude']['level_greater_than'];
 
         // does this page have children?
-        $has_children = (!empty($root) && $item->id !== $root->id || !$options['flat_root']) && !$level_limit_reached && $item->hasChildren;
+        $has_children_selector = empty($options['include']['selector']) ? true : $options['include']['selector'];
+        $has_children = (!empty($root) && $item->id !== $root->id || !$options['flat_root']) && !$level_limit_reached && $item->hasChildren($has_children_selector);
         if ($has_children) $classes['has_children'] = $options['classes']['has_children'];
 
         // should we render the children for this item?
