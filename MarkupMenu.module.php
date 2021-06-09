@@ -8,7 +8,7 @@ namespace ProcessWire;
  * MarkupMenu is a module for generating menu markup. See README.md for more details.
  * Some ideas and code in this module are based on the Markup Simple Navigation module.
  *
- * @version 0.8.2
+ * @version 0.9.0
  * @author Teppo Koivula <teppo.koivula@gmail.com>
  * @license Mozilla Public License v2.0 http://mozilla.org/MPL/2.0/
  */
@@ -147,7 +147,7 @@ class MarkupMenu extends WireData implements Module {
         // fetch items (children of the root page), optionally filtered by a selector string
         $items = new PageArray();
         if (!empty($root) && (!$options['include']['root_page'] || $options['flat_root'])) {
-            $items->add($root->children($options['include']['selector']));
+            $items->add($root->children($this->getSelector($root, 'include', $options)));
         }
 
         // optionally prepend the root page itself
@@ -156,8 +156,9 @@ class MarkupMenu extends WireData implements Module {
         }
 
         // exclude rules based on selector string
-        if (!empty($options['exclude']['selector'])) {
-            $items->not($options['exclude']['selector']);
+        $exclude_selector = $this->getSelector($root, 'exclude', $options);
+        if (!empty($exclude_selector)) {
+            $items->not($exclude_selector);
         }
 
         return $items;
@@ -199,7 +200,7 @@ class MarkupMenu extends WireData implements Module {
         $level_limit_reached = $options['exclude']['level_greater_than'] && $level >= $options['exclude']['level_greater_than'];
 
         // does this page have children?
-        $has_children_selector = empty($options['include']['selector']) ? true : $options['include']['selector'];
+        $has_children_selector = $this->getSelector($item, 'include', $options) ?: true;
         $has_children = (!empty($root) && $item->id !== $root->id || !$options['flat_root']) && !$level_limit_reached && $item->hasChildren($has_children_selector);
         if ($has_children) $classes['has_children'] = $options['classes']['has_children'];
 
@@ -236,6 +237,18 @@ class MarkupMenu extends WireData implements Module {
         $out .= $this->applyTemplate('list_item', $item_markup, $placeholders, $options, $item);
 
         return $out;
+    }
+
+    /**
+     * Get selector for specific menu item
+     *
+     * @param Page|null $item
+     * @param string $context 'include' or 'exclude'
+     * @param array $options
+     * @return string|null
+     */
+    protected function ___getSelector(?Page $item = null, string $context, array $options = []): ?string {
+        return $options[$context]['selector'] ?? null;
     }
 
     /**
