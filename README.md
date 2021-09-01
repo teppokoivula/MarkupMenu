@@ -59,8 +59,8 @@ via site config setting `$config->MarkupMenu`.
         'nav' => '<nav class="{classes}">%s</nav>',
         'list' => '<ul class="{classes} {class}--level-{level}">%s</ul>',
         'list_item' => '<li class="{classes} {class}--level-{level}">%s</li>',
-        'item' => '<a href="{item.url}" class="{classes}">{item.title}</a>',
-        'item_current' => '<span class="{classes}">{item.title}</span>',
+        'item' => '<a href="{item.url}" class="{classes} {class}--level-{level}">{item.title}</a>',
+        'item_current' => '<span class="{classes} {class}--level-{level}">{item.title}</span>',
     ],
 
     // 'include' defines the pages included in the menu: you can provide 'selector' string to choose
