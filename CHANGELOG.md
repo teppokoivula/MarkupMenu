@@ -7,10 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- Include level by default in the 'item' template.
+
 ## [0.9.0] - 2021-06-09
 
 ### Added
-
 - New hookable method getSelector().
 
 ## [0.8.2] - 2020-11-30
