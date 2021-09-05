@@ -1,16 +1,18 @@
 MarkupMenu ProcessWire module
 -----------------------------
 
-MarkupMenu is a markup module for generating menu trees. When provided a root page as a starting point,
-it generates a navigation tree (by default as a HTML `<ul>` element wrapped by a `<nav>` element) from
-that point onwards. If you've also provided it with current (active) page, the menu will be rendered
-accordingly.
+MarkupMenu is a ProcessWire module for generating markup for navigation menus. When provided a root page as a starting
+point and (optional, but recommended) the current (active) page, it generates the markup for a navigation menu as an
+unordered list `<ul>` wrapped with a `<nav>` element based on said arguments.
+
+MarkupMenu provides a number of configurable options, including template strings used for various menu items (such as
+the list and nav element mentioned above), as well as hookable methods for those who need full control over how their
+menus are laid out.
 
 ## Usage
 
-As a markup module, MarkupMenu is intended for front-end use, but you can of course use it in a module
-as well. Typically you'll only need the render() method, which takes an array of options as its only
-argument:
+MarkupMenu is intended for front-end use, but you can of course use it in a module as well. Typically you'll only need
+the render() method, which takes an array of options as its only argument:
 
 ```
 echo $modules->get('MarkupMenu')->render([
@@ -19,20 +21,21 @@ echo $modules->get('MarkupMenu')->render([
 ]);
 ```
 
-Note: if you omit root_page, site root page is used by default – unless you've specified the menu_items
-option instead, in which case a root page is not necessary. If you omit current_page, the menu will be
-rendered, but current (active) page can't be highlighted.
+Note: if you omit the root_page option, site root page is used by default – unless you've specified the menu_items
+option, in which case a root page is not necessary at all. If you omit current_page, the menu will be rendered, but
+current (active) page can't be highlighted etc.
 
 ## Options
 
-Below you'll find all the available options and their default values. You can override these defaults
-with the array you pass to the render method, or you can specify an array of site-wide custom options
-via site config setting `$config->MarkupMenu`.
+Below you'll find all the available options and their default values. You can override these defaults with the array
+you pass to the render method, or you can specify an array of site-wide custom options via the site config setting
+`$config->MarkupMenu`:
 
 ```
-[
-    // 'root_page' is the starting point for the menu. This is optional if you specify the 'menu_items'
-    // option instead, but leaving *both* empty will make MarkupMenu::render() return an empty string.
+$config->MarkupMenu = [
+
+    // 'root_page' is the starting point for the menu. This is optional if you specify the 'menu_items' option instead,
+    // but leaving *both* empty will make MarkupMenu::render() return an empty string.
     'root_page' => null,
 
     // 'menu_items' is an optional, prepopulated PageArray of first level menu items.
@@ -41,7 +44,7 @@ via site config setting `$config->MarkupMenu`.
     // 'current' page is the current or active menu page.
     'current_page' => null,
 
-    // 'templates' are used for rendering individual parts of the menu:
+    // 'templates' define the template strings used for rendering individual parts of the menu:
     //
     // - the semantic <nav> element that acts as a wrapper for the menu ('nav'),
     // - the lists wrapping the menu items and the subtrees within it ('list'),
@@ -49,7 +52,7 @@ via site config setting `$config->MarkupMenu`.
     // - the items (links) in the menu ('item')
     // - the active item ('item_current')
     //
-    // special placeholder values populated by default:
+    // special placeholder values supported by default and populated while rendering the menu:
     //
     // - {classes}: all default classes applied, including template class, current class, etc.
     // - {class}: the template class only, mostly useful for adding a prefix to other classes
@@ -59,48 +62,48 @@ via site config setting `$config->MarkupMenu`.
         'nav' => '<nav class="{classes}">%s</nav>',
         'list' => '<ul class="{classes} {class}--level-{level}">%s</ul>',
         'list_item' => '<li class="{classes} {class}--level-{level}">%s</li>',
-        'item' => '<a href="{item.url}" class="{classes}">{item.title}</a>',
-        'item_current' => '<span class="{classes}">{item.title}</span>',
+        'item' => '<a href="{item.url}" class="{classes} {class}--level-{level}">{item.title}</a>',
+        'item_current' => '<span class="{classes} {class}--level-{level}">{item.title}</span>',
     ],
 
-    // 'include' defines the pages included in the menu: you can provide 'selector' string to choose
-    // suitable pages, and use a boolean toggle ('root_page') to choose whether the root page itself
-    // should be included in the menu.
+    // 'include' defines the pages included in the menu: you can provide 'selector' string to choose suitable pages,
+    // and use a boolean toggle ('root_page') to choose whether the root page itself should be included in the menu.
     'include' => [
         'selector' => null,
         'root_page' => false,
     ],
 
-    // 'exclude' rules are the opposite of the include rules, and allow you to define the pages not
-    // included in the menu: pages matching a selector string, non-listable pages ('listable' value
-    // of false means that non-listable pages are excluded), and pages that would exceed a maximum
-    // level or depth ('level_greater_than').
+    // 'exclude' rules are the opposite of the include rules, and allow you to define the pages not included in the
+    // menu: pages matching a selector string, non-listable pages ('listable' value of false means that non-listable
+    // pages are excluded), and pages that would exceed a maximum level or depth ('level_greater_than').
+    //
+    // **NOTE**: exclude rules are applied *after* initial query, which makes them less performant than include rules;
+    // in particular one should always prefer the selector in the include rules over the one in the exclude rules.
     'exclude' => [
         'selector' => null,
         'listable' => false,
         'level_greater_than' => null,
     ],
 
-    // 'collapsed', in the lack of a better name, defines whether your menu should only be rendered
-    // up current (active) page, or first level if no current page was provided.
+    // 'collapsed', in the lack of a better name, defines whether your menu should only be rendered up current (active)
+    // page, or first level if no current page was provided.
     'collapsed' => true,
 
-    // 'flat_root' is only useful if you've chosen to include the root page in the menu: this option
-    // puts the root page at the same level as your other first level pages – typically you'd want
-    // this, so that your home page shows up at the same level as the first level below it.
+    // 'flat_root' is only useful if you've chosen to include the root page in the menu: this option puts the root page
+    // at the same level as your other first level pages – typically you'd want this, so that your home page shows up
+    // at the same level as the first level below it.
     'flat_root' => true,
 
-    // 'placeholder_options' is an optional array of options that will be passed to WireTextTools or
-    // the wirePopulateStringTags() function, used for tag replacements in templates defined via the
-    // 'templates' option.
+    // 'placeholder_options' is an array of options that will be passed to WireTextTools or wirePopulateStringTags(),
+    // used for tag replacements in templates defined via the 'templates' option.
     'placeholder_options' => [],
 
-    // 'placeholders' can be used to provide additional custom values for string replacements used
-    // within the templates defined via the 'templates' option.
+    // 'placeholders' can be used to provide additional custom values for string replacements used within the template
+    // strings defined via the 'templates' option.
     'placeholders' => [],
 
-    // 'classes' can be used to override default class names added to items when the {classes} tag
-    // is used in a template defined via the 'templates' option.
+    // 'classes' can be used to override default class names added to items when the {classes} tag is used in template
+    // strings defined via the 'templates' option.
     'classes' => [
         // 'page_id' => '&--page-id-', // note: page_id is disabled by default!
         'nav' => 'menu',
@@ -120,14 +123,17 @@ via site config setting `$config->MarkupMenu`.
 - ProcessWire >= 3.0.112
 - PHP >= 7.1.0
 
-If you're working on an earlier version of ProcessWire or PHP, I'd highly recommend checking out the
-MarkupSimpleNavigation module instead: https://github.com/somatonic/MarkupSimpleNavigation.
+If you're working on an earlier version of ProcessWire or PHP, I'd highly recommend checking out MarkupSimpleNavigation
+module instead: https://github.com/somatonic/MarkupSimpleNavigation.
 
 ## Installing
 
-This module can be installed just like any other ProcessWire module, by downloading or cloning the
-MarkupMenu directory into your /site/modules/ directory. Alternatively you can install MarkupMenu
-through Composer by executing `composer require teppokoivula/markup-menu` in your site directory.
+This module can be installed just like any other ProcessWire module, by downloading or cloning the MarkupMenu directory
+into your /site/modules/ directory. Alternatively you can install the module via Composer:
+
+```
+composer require teppokoivula/markup-menu
+```
 
 ## License
 

@@ -8,7 +8,7 @@ namespace ProcessWire;
  * MarkupMenu is a module for generating menu markup. See README.md for more details.
  * Some ideas and code in this module are based on the Markup Simple Navigation module.
  *
- * @version 0.9.0
+ * @version 0.10.0
  * @author Teppo Koivula <teppo.koivula@gmail.com>
  * @license Mozilla Public License v2.0 http://mozilla.org/MPL/2.0/
  */
@@ -27,8 +27,8 @@ class MarkupMenu extends WireData implements Module {
             'nav' => '<nav class="{classes}">%s</nav>',
             'list' => '<ul class="{classes} {class}--level-{level}">%s</ul>',
             'list_item' => '<li class="{classes} {class}--level-{level}">%s</li>',
-            'item' => '<a href="{item.url}" class="{classes}">{item.title}</a>',
-            'item_current' => '<span class="{classes}">{item.title}</span>',
+            'item' => '<a href="{item.url}" class="{classes} {class}--level-{level}">{item.title}</a>',
+            'item_current' => '<span class="{classes} {class}--level-{level}">{item.title}</span>',
         ],
         'include' => [
             'selector' => null,
@@ -122,11 +122,11 @@ class MarkupMenu extends WireData implements Module {
             ];
 
             // generate list markup
-            $out = $this->applyTemplate('list', $out, $placeholders, $options);
+            $out = $this->applyTemplate('list', $placeholders, $options, null, $out);
 
             // generate nav markup
             if ($level === 1) {
-                $out = $this->applyTemplate('nav', $out, $placeholders, $options);
+                $out = $this->applyTemplate('nav', $placeholders, $options, null, $out);
             }
 
         }
@@ -219,14 +219,7 @@ class MarkupMenu extends WireData implements Module {
 
         // generate markup for menu item
         $item_template_name = 'item' . ($item_is_current ? '_current' : '');
-        $item_template = $this->getTemplate($item_template_name, $item, $options);
-        $item_placeholders = $placeholders;
-        $item_placeholders['classes'] = $this->parseClassesString($item_placeholders, $options, $item_template_name);
-        $item_markup = wirePopulateStringTags(
-            $item_template,
-            new MarkupMenuData($item_placeholders),
-            $options['placeholder_options']
-        );
+        $item_markup = $this->applyTemplate($item_template_name, $placeholders, $options, $item);
 
         // generate markup for menu item children
         if ($with_children) {
@@ -234,7 +227,7 @@ class MarkupMenu extends WireData implements Module {
         }
 
         // generate markup for current list item
-        $out .= $this->applyTemplate('list_item', $item_markup, $placeholders, $options, $item);
+        $out .= $this->applyTemplate('list_item', $placeholders, $options, $item, $item_markup);
 
         return $out;
     }
@@ -259,7 +252,7 @@ class MarkupMenu extends WireData implements Module {
      * @return null|Page Page object or null
      */
     protected function getPage($source = null, $default = null): ?Page {
-        
+
         $page = null;
 
         if ($source instanceof Page) {
@@ -283,7 +276,7 @@ class MarkupMenu extends WireData implements Module {
      * @param array $options An array of options
      * @return string Template
      */
-    protected function ___getTemplate($template_name, Page $item = null, array $options = []): string {
+    protected function ___getTemplate($template_name, ?Page $item = null, array $options = []): string {
         return $options['templates'][$template_name];
     }
 
@@ -291,13 +284,13 @@ class MarkupMenu extends WireData implements Module {
      * Apply a template to content string
      *
      * @param string $template_name Name of the template
-     * @param string $content Content to be wrapped in template
      * @param array $placeholders Array of placeholders for string replacements
      * @param array $options An array of options
      * @param Page|null $item Item being rendered
+     * @param string|null $content Content to be wrapped in template
      * @return string Content either wrapped in template, or as-is if no template was defined
      */
-    protected function applyTemplate(string $template_name, string $content, array $placeholders, array $options, Page $item = null): string {
+    protected function applyTemplate(string $template_name, array $placeholders, array $options, ?Page $item = null, ?string $content = null): string {
 
         $out = '';
 
@@ -305,17 +298,17 @@ class MarkupMenu extends WireData implements Module {
         if (!empty($template)) {
             $placeholders['class'] = $placeholders['classes'][$template_name] ?? $options['classes'][$template_name] ?? null;
             $placeholders['classes'] = $this->parseClassesString($placeholders, $options, $template_name);
-            $out = sprintf(
-                wirePopulateStringTags(
-                    $template,
-                    new MarkupMenuData(array_merge(
-                        $placeholders,
-                        $options['placeholders']
-                    )),
-                    $options['placeholder_options']
-                ),
-                $content
+            $out = wirePopulateStringTags(
+                $template,
+                new MarkupMenuData(array_merge(
+                    $placeholders,
+                    $options['placeholders']
+                )),
+                $options['placeholder_options']
             );
+            if ($content !== null) {
+                $out = sprintf($out, $content);
+            }
         }
 
         return $out;
