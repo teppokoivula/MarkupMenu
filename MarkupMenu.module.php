@@ -276,7 +276,7 @@ class MarkupMenu extends WireData implements Module {
     }
 
     /**
-     * Get template for rendering an element (list item, item, or item_current)
+     * Get template for rendering an element
      *
      * @param string $template_name Template name
      * @param Page|null $item Item being rendered
