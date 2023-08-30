@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.0] - 2023-08-30
+
+### Added
+- New hookable methods treeItemIsParent() and arrayItemIsParent().
+
+### Changed
+- Signature for hookable method renderArrayItem has changed, $root item is now provided as the third param. This applies to a protected method, but is still a breaking change in case third party code is hooking into said method.
+
+### Fixed
+- Root page ID check in renderArrayItem() was referring to a non-existing variable.
+
 ## [0.11.0] - 2022-12-04
 
 ### Added

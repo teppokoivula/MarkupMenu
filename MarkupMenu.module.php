@@ -8,7 +8,7 @@ namespace ProcessWire;
  * MarkupMenu is a module for generating menu markup. See README.md for more details.
  * Some ideas and code in this module are based on the Markup Simple Navigation module.
  *
- * @version 0.11.0
+ * @version 1.0.0
  * @author Teppo Koivula <teppo.koivula@gmail.com>
  * @license Mozilla Public License v2.0 http://mozilla.org/MPL/2.0/
  */
@@ -90,7 +90,7 @@ class MarkupMenu extends WireData implements Module {
         $menu = '';
         if (!empty($options['root_page'] || !empty($options['menu_items']))) {
             if (is_array($options['menu_items'])) {
-                $menu = $this->renderArray($options, $options['menu_items']);
+                $menu = $this->renderArray($options, null, $options['menu_items']);
             } else {
                 $menu = $this->renderTree($options, $options['root_page'], $options['menu_items']);
             }
@@ -105,15 +105,16 @@ class MarkupMenu extends WireData implements Module {
      * @param array $options Options for rendering
      * @param array $items Menu items
      * @param int $level Current tree level (depth)
+     * @param array|null $root Root item for the menu
      * @return string Rendered menu markup
      */
-    protected function renderArray(array $options = [], array $items, int $level = 1): string {
+    protected function renderArray(array $options = [], ?array $root, array $items, int $level = 1): string {
 
         $out = '';
 
         // iterate items and render markup for each separately
         foreach ($items as $item) {
-            $out .= $this->renderArrayItem($options, $item, $level);
+            $out .= $this->renderArrayItem($options, $item, $root, $level);
         }
 
         if (!empty($out) && (!empty($options['templates']['list']) || !empty($options['templates']['nav']))) {
@@ -215,10 +216,11 @@ class MarkupMenu extends WireData implements Module {
      *
      * @param array $options Options for rendering
      * @param array $item Menu item being rendered
+     * @param array|null $root Root item for the menu
      * @param int $level Current tree level (depth)
      * @return string Rendered menu item markup
      */
-    protected function ___renderArrayItem(array $options = [], array $item = null, int $level = 1): string {
+    protected function ___renderArrayItem(array $options = [], array $item = null, ?array $root = null, int $level = 1): string {
 
         $out = '';
 
@@ -244,14 +246,16 @@ class MarkupMenu extends WireData implements Module {
         if ($item_is_current) $classes['current'] = $options['classes']['current'];
 
         // is this a parent page?
-        $item_is_parent = $item[$keys['is_parent']] ?? (!$item_is_current && !empty($item[$keys['id']]) && (!empty($root) && $item->id !== $root->id || !$options['flat_root']) && $options['current_page'] && $options['current_page']->parents->has("id=" . $item[$keys['id']]));
+        $item_is_parent = $item[$keys['is_parent']] ?? (
+            !$item_is_current && $this->arrayItemIsParent($options, $item, $root)
+        );
         if ($item_is_parent) $classes['parent'] = $options['classes']['parent'];
 
         // have we reached the level limit?
         $level_limit_reached = $options['exclude']['level_greater_than'] && $level >= $options['exclude']['level_greater_than'];
 
         // does this page have children?
-        $has_children = (!empty($root) && !empty($item[$keys['id']]) && $item[$keys['id']] !== $root->id || !$options['flat_root']) && !$level_limit_reached && !empty($item[$keys['children']]);
+        $has_children = (!empty($root) && !empty($item[$keys['id']]) && $item[$keys['id']] !== $root[$options['array_item_keys']['id']] || !$options['flat_root']) && !$level_limit_reached && !empty($item[$keys['children']]);
         if ($has_children) $classes['has_children'] = $options['classes']['has_children'];
 
         // should we render the children for this item?
@@ -273,7 +277,7 @@ class MarkupMenu extends WireData implements Module {
 
         // generate markup for menu item children
         if ($with_children) {
-            $item_markup .= $this->renderArray($options, $item[$keys['children']], $level + 1);
+            $item_markup .= $this->renderArray($options, $item, $item[$keys['children']], $level + 1);
         }
 
         // generate markup for current list item
@@ -311,7 +315,7 @@ class MarkupMenu extends WireData implements Module {
         if ($item_is_current) $classes['current'] = $options['classes']['current'];
 
         // is this a parent page?
-        $item_is_parent = !$item_is_current && (!empty($root) && $item->id !== $root->id || !$options['flat_root']) && $options['current_page'] && $options['current_page']->parents->has($item);
+        $item_is_parent = !$item_is_current && $this->treeItemIsParent($options, $item, $root);
         if ($item_is_parent) $classes['parent'] = $options['classes']['parent'];
 
         // have we reached the level limit?
@@ -348,6 +352,35 @@ class MarkupMenu extends WireData implements Module {
         $out .= $this->applyTemplate('list_item', $placeholders, $options, $item, $item_markup);
 
         return $out;
+    }
+
+    /**
+     * Check if a tree item is a parent of current page
+     *
+     * @param array $options Options for rendering
+     * @param Page $item Menu item being rendered
+     * @param Page|null $root Root page for the menu
+     * @return bool
+     */
+    protected function ___treeItemIsParent(array $options = [], Page $item, ?Page $root = null): bool {
+        return (!empty($root) && $item->id !== $root->id || !$options['flat_root'])
+            && $options['current_page']
+            && $options['current_page']->parents->has($item);
+    }
+
+    /**
+     * Check if an array item is a parent of current page
+     *
+     * @param array $options Options for rendering
+     * @param array $item Menu item being rendered
+     * @param array|null $root Root item for the menu
+     * @return bool
+     */
+    protected function ___arrayItemIsParent(array $options = [], array $item, ?array $root = null): bool {
+        return !empty($item[$options['array_item_keys']['id']])
+            && (!empty($root) && $item[$options['array_item_keys']['id']] !== $root[$options['array_item_keys']['id']] || !$options['flat_root'])
+            && $options['current_page']
+            && $options['current_page']->parents->has("id=" . $item[$options['array_item_keys']['id']]);
     }
 
     /**
