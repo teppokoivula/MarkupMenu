@@ -1,7 +1,7 @@
 {
     "title": "MarkupMenu",
     "summary": "MarkupMenu is a module for generating menu markup.",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "author": "Teppo Koivula",
     "href": "https://github.com/teppokoivula/MarkupMenu",
     "requires": [
