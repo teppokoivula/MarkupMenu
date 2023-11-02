@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.0] - 2023-11-02
+
+### Added
+- Placeholders array is passed to ___getTemplate() and made available for callable templates.
+
 ## [1.0.0] - 2023-08-30
 
 ### Added
