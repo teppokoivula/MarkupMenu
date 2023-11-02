@@ -8,7 +8,7 @@ namespace ProcessWire;
  * MarkupMenu is a module for generating menu markup. See README.md for more details.
  * Some ideas and code in this module are based on the Markup Simple Navigation module.
  *
- * @version 1.0.0
+ * @version 1.0.1
  * @author Teppo Koivula <teppo.koivula@gmail.com>
  * @license Mozilla Public License v2.0 http://mozilla.org/MPL/2.0/
  */
@@ -425,11 +425,12 @@ class MarkupMenu extends WireData implements Module {
      * @param string $template_name Template name
      * @param Page|MarkupMenuData|null $item Item being rendered
      * @param array $options An array of options
+     * @param array $placeholders Array of placeholders for string replacements
      * @return string Template
      */
-    protected function ___getTemplate($template_name, ?WireData $item = null, array $options = []): string {
+    protected function ___getTemplate($template_name, ?WireData $item = null, array $placeholders = []): string {
         $template = $options['templates'][$template_name];
-        return is_callable($template) ? $template($item, $options) : $template;
+        return is_callable($template) ? $template($item, $options, $placeholders) : $template;
     }
 
     /**
@@ -446,7 +447,7 @@ class MarkupMenu extends WireData implements Module {
 
         $out = '';
 
-        $template = $this->getTemplate($template_name, $item, $options);
+        $template = $this->getTemplate($template_name, $item, $options, $placeholders);
         if (!empty($template)) {
             $placeholders['class'] = $placeholders['classes'][$template_name] ?? $options['classes'][$template_name] ?? null;
             $placeholders['classes'] = $this->parseClassesString($placeholders, $options, $template_name);
