@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.0] - 2024-03-24
+
+### Added
+- "root", for the root page of the rendered list/menu, is now included in placeholders for list and nav templates.
+
 ## [1.1.1] - 2023-11-02
 
 ### Fixed

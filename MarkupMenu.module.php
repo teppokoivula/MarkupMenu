@@ -8,7 +8,7 @@ namespace ProcessWire;
  * MarkupMenu is a module for generating menu markup. See README.md for more details.
  * Some ideas and code in this module are based on the Markup Simple Navigation module.
  *
- * @version 1.1.1
+ * @version 1.2.0
  * @author Teppo Koivula <teppo.koivula@gmail.com>
  * @license Mozilla Public License v2.0 http://mozilla.org/MPL/2.0/
  */
@@ -103,9 +103,9 @@ class MarkupMenu extends WireData implements Module {
      * Render menu from fixed array of items
      *
      * @param array $options Options for rendering
+     * @param array|null $root Root item for the menu
      * @param array $items Menu items
      * @param int $level Current tree level (depth)
-     * @param array|null $root Root item for the menu
      * @return string Rendered menu markup
      */
     protected function renderArray(array $options = [], ?array $root, array $items, int $level = 1): string {
@@ -123,6 +123,7 @@ class MarkupMenu extends WireData implements Module {
             $placeholders = [
                 'level' => $level,
                 'root_page' => $options['root_page'],
+                'root' => $root,
             ];
 
             // generate list markup
@@ -167,6 +168,7 @@ class MarkupMenu extends WireData implements Module {
             $placeholders = [
                 'level' => $level,
                 'root_page' => $options['root_page'],
+                'root' => $root,
             ];
 
             // generate list markup
