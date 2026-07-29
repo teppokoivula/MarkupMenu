@@ -8,7 +8,7 @@ namespace ProcessWire;
  * MarkupMenu is a module for generating menu markup. See README.md for more details.
  * Some ideas and code in this module are based on the Markup Simple Navigation module.
  *
- * @version 1.2.0
+ * @version 1.2.1
  * @author Teppo Koivula <teppo.koivula@gmail.com>
  * @license Mozilla Public License v2.0 http://mozilla.org/MPL/2.0/
  */
@@ -147,7 +147,7 @@ class MarkupMenu extends WireData implements Module {
      * @param int $level Current tree level (depth)
      * @return string Rendered menu markup
      */
-    protected function renderTree(array $options = [], Page $root = null, PageArray $items = null, int $level = 1): string {
+    protected function renderTree(array $options = [], ?Page $root = null, ?PageArray $items = null, int $level = 1): string {
 
         $out = '';
 
@@ -191,7 +191,7 @@ class MarkupMenu extends WireData implements Module {
      * @param int $level Current tree level (depth)
      * @return PageArray Menu items
      */
-    protected function ___getItems(array $options, Page $root = null, int $level): PageArray {
+    protected function ___getItems(array $options, ?Page $root = null, int $level): PageArray {
 
         // fetch items (children of the root page), optionally filtered by a selector string
         $items = new PageArray();
@@ -222,7 +222,7 @@ class MarkupMenu extends WireData implements Module {
      * @param int $level Current tree level (depth)
      * @return string Rendered menu item markup
      */
-    protected function ___renderArrayItem(array $options = [], array $item = null, ?array $root = null, int $level = 1): string {
+    protected function ___renderArrayItem(array $options = [], ?array $item = null, ?array $root = null, int $level = 1): string {
 
         $out = '';
 
@@ -297,7 +297,7 @@ class MarkupMenu extends WireData implements Module {
      * @param int $level Current tree level (depth)
      * @return string Rendered menu item markup
      */
-    protected function ___renderTreeItem(array $options = [], Page $item, Page $root = null, int $level = 1): string {
+    protected function ___renderTreeItem(array $options = [], Page $item, ?Page $root = null, int $level = 1): string {
 
         $out = '';
 

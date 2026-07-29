@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.1] - 2026-07-29
+
+### Fixed
+- Fixed PHP 8.4 deprecations (implicitly nullable types).
+
 ## [1.2.0] - 2024-03-24
 
 ### Added
