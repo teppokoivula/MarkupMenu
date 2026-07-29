@@ -8,7 +8,7 @@ namespace ProcessWire;
  * MarkupMenu is a module for generating menu markup. See README.md for more details.
  * Some ideas and code in this module are based on the Markup Simple Navigation module.
  *
- * @version 1.2.1
+ * @version 1.2.2
  * @author Teppo Koivula <teppo.koivula@gmail.com>
  * @license Mozilla Public License v2.0 http://mozilla.org/MPL/2.0/
  */
@@ -108,7 +108,7 @@ class MarkupMenu extends WireData implements Module {
      * @param int $level Current tree level (depth)
      * @return string Rendered menu markup
      */
-    protected function renderArray(array $options = [], ?array $root, array $items, int $level = 1): string {
+    protected function renderArray(array $options, ?array $root, array $items, int $level = 1): string {
 
         $out = '';
 
@@ -191,7 +191,7 @@ class MarkupMenu extends WireData implements Module {
      * @param int $level Current tree level (depth)
      * @return PageArray Menu items
      */
-    protected function ___getItems(array $options, ?Page $root = null, int $level): PageArray {
+    protected function ___getItems(array $options, ?Page $root, int $level): PageArray {
 
         // fetch items (children of the root page), optionally filtered by a selector string
         $items = new PageArray();
@@ -297,7 +297,7 @@ class MarkupMenu extends WireData implements Module {
      * @param int $level Current tree level (depth)
      * @return string Rendered menu item markup
      */
-    protected function ___renderTreeItem(array $options = [], Page $item, ?Page $root = null, int $level = 1): string {
+    protected function ___renderTreeItem(array $options, Page $item, ?Page $root = null, int $level = 1): string {
 
         $out = '';
 
@@ -364,7 +364,7 @@ class MarkupMenu extends WireData implements Module {
      * @param Page|null $root Root page for the menu
      * @return bool
      */
-    protected function ___treeItemIsParent(array $options = [], Page $item, ?Page $root = null): bool {
+    protected function ___treeItemIsParent(array $options, Page $item, ?Page $root = null): bool {
         return (!empty($root) && $item->id !== $root->id || !$options['flat_root'])
             && $options['current_page']
             && $options['current_page']->parents->has($item);
@@ -378,7 +378,7 @@ class MarkupMenu extends WireData implements Module {
      * @param array|null $root Root item for the menu
      * @return bool
      */
-    protected function ___arrayItemIsParent(array $options = [], array $item, ?array $root = null): bool {
+    protected function ___arrayItemIsParent(array $options, array $item, ?array $root = null): bool {
         return !empty($item[$options['array_item_keys']['id']])
             && (!empty($root) && $item[$options['array_item_keys']['id']] !== $root[$options['array_item_keys']['id']] || !$options['flat_root'])
             && $options['current_page']
@@ -393,7 +393,7 @@ class MarkupMenu extends WireData implements Module {
      * @param array $options
      * @return string|null
      */
-    protected function ___getSelector(?Page $item = null, string $context, array $options = []): ?string {
+    protected function ___getSelector(?Page $item, string $context, array $options = []): ?string {
         return $options[$context]['selector'] ?? null;
     }
 
